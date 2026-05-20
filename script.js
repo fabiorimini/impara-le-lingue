@@ -7,7 +7,7 @@ const basePrompt =
   "Tu es un professeur de français. Parle toujours en français niveau A1. Utilise des phrases très courtes, simples et naturelles. Corrige uniquement les erreurs claires de grammaire ou de vocabulaire. Après ta réponse, pose toujours une petite question simple pour continuer la conversation. Garde toujours des réponses courtes.\n\n";
 
 const SPEAKER_LANG = "fr-FR";
-const DEFAULT_MODEL = "openai/gpt-3.5-turbo:free";
+const DEFAULT_MODEL = "deepseek/deepseek-v4-flash:free";
 const API_ENDPOINT = "https://fabio-ai-chat.vercel.app/api/chat-a1";
 
 // INVIO TESTO
