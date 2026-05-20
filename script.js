@@ -10,6 +10,17 @@ const SPEAKER_LANG = "fr-FR";
 const DEFAULT_MODEL = "baidu/cobuddy:free";
 const API_ENDPOINT = "https://fabio-ai-chat.vercel.app/api/chat-a1";
 
+// =========================
+// RICONOSCIMENTO VOCALE (Chrome OK, Edge fallback)
+// =========================
+function getSpeechRecognition() {
+  if ("webkitSpeechRecognition" in window) return window.webkitSpeechRecognition;
+  if ("SpeechRecognition" in window) return window.SpeechRecognition;
+  return null;
+}
+
+const SpeechRecognition = getSpeechRecognition();
+
 // INVIO TESTO
 document.getElementById("send-btn").addEventListener("click", sendMessage);
 document.getElementById("user-input").addEventListener("keypress", e => {
@@ -62,11 +73,18 @@ function addMessage(sender, text) {
 // VOCE INPUT (FR)
 document.getElementById("voice-btn").addEventListener("click", () => {
   speechSynthesis.cancel();
-  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if (!SpeechRecognition) { addMessage("AI", "Browser non supporta voce."); return; }
+
+  if (!SpeechRecognition) {
+    addMessage("AI", "Il riconoscimento vocale non è supportato su questo browser. Usa Chrome.");
+    return;
+  }
+
   const recognition = new SpeechRecognition();
   recognition.lang = SPEAKER_LANG;
-  recognition.start();
+  recognition.continuous = false;
+  recognition.interimResults = false;
+  recognition.maxAlternatives = 1;
+
   recognition.onresult = e => {
     const text = e.results[0][0].transcript.trim();
     if (!text) return;
@@ -74,6 +92,12 @@ document.getElementById("voice-btn").addEventListener("click", () => {
     document.getElementById("user-input").value = text;
     sendMessage();
   };
+
+  recognition.onerror = e => {
+    addMessage("AI", "Errore riconoscimento vocale: " + e.error);
+  };
+
+  recognition.start();
 });
 
 // VOCE OUTPUT (FR)
@@ -99,25 +123,43 @@ document.getElementById("listen-btn").addEventListener("click", () => {
 // CHIARIMENTO (IT)
 document.getElementById("clarify-btn").addEventListener("click", () => {
   speechSynthesis.cancel();
-  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if (!SpeechRecognition) return;
+
+  if (!SpeechRecognition) {
+    addMessage("AI", "Il riconoscimento vocale non è supportato su questo browser. Usa Chrome.");
+    return;
+  }
+
   const recognition = new SpeechRecognition();
   recognition.lang = "it-IT";
-  recognition.start();
+  recognition.continuous = false;
+  recognition.interimResults = false;
+
   recognition.onresult = e => {
     const text = e.results[0][0].transcript.trim();
     addMessage("Tu", text);
     evaluateQuality(text);
-    const clarifyPrompt = basePrompt +
-      "L’étudiant pose maintenant une question en italien. Réponds uniquement en français A1.\n\nÉtudiant (italien): " + text;
+
+    const clarifyPrompt =
+      basePrompt +
+      "L’étudiant pose maintenant une question en italien. Réponds uniquement en français A1.\n\nÉtudiant (italien): " +
+      text;
+
     fetch(API_ENDPOINT, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ prompt: clarifyPrompt, model: DEFAULT_MODEL, max_tokens: 120, temperature: 0.3 })
     })
     .then(r => r.json())
-    .then(data => { if (data.reply) { addMessage("AI", data.reply); speakText(data.reply); history.push("Professeur: " + data.reply); } });
+    .then(data => {
+      if (data.reply) {
+        addMessage("AI", data.reply);
+        speakText(data.reply);
+        history.push("Professeur: " + data.reply);
+      }
+    });
   };
+
+  recognition.start();
 });
 
 // TRADUZIONE (IT)
@@ -125,7 +167,10 @@ document.getElementById("translate-btn").addEventListener("click", () => {
   const last = document.getElementById("chat-log").lastElementChild;
   if (!last) return;
   let text = last.innerText.replace("AI:", "").replace("Professeur:", "").trim();
-  const translatePrompt = "Traduisez ce texte vers l’italien. Donne uniquement la traduction italienne.\n\n" + text;
+
+  const translatePrompt =
+    "Traduisez ce texte vers l’italien. Donne uniquement la traduction italienne.\n\n" + text;
+
   fetch(API_ENDPOINT, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -178,3 +223,4 @@ document.addEventListener("DOMContentLoaded", () => {
     box.textContent = "Modello AI in uso: " + selectedModel;
   }
 });
+
