@@ -11,6 +11,21 @@ const DEFAULT_MODEL = "baidu/cobuddy:free";
 const API_ENDPOINT = "https://fabio-ai-chat.vercel.app/api/chat-a1";
 
 // =========================
+// PULIZIA TESTO PER LA VOCE
+// =========================
+function cleanForSpeech(text) {
+  return text
+    .replace(/[*]/g, "")                     // rimuove asterischi
+    .replace(/[\u{1F600}-\u{1F64F}]/gu, "")  // rimuove emoji faccine
+    .replace(/[\u{1F300}-\u{1F5FF}]/gu, "")  // rimuove simboli vari
+    .replace(/[\u{1F680}-\u{1F6FF}]/gu, "")  // rimuove simboli trasporto
+    .replace(/[\u{2600}-\u{26FF}]/gu, "")    // rimuove simboli extra
+    .replace(/_/g, " ")                      // rimuove underscore
+    .replace(/\s+/g, " ")                    // normalizza spazi
+    .trim();
+}
+
+// =========================
 // RICONOSCIMENTO VOCALE (Chrome OK, Edge fallback)
 // =========================
 function getSpeechRecognition() {
@@ -103,7 +118,8 @@ document.getElementById("voice-btn").addEventListener("click", () => {
 // VOCE OUTPUT (FR)
 function speakText(text) {
   speechSynthesis.cancel();
-  const utter = new SpeechSynthesisUtterance(text);
+  const clean = cleanForSpeech(text);
+  const utter = new SpeechSynthesisUtterance(clean);
   utter.lang = SPEAKER_LANG;
   utter.rate = 0.65;
   speechSynthesis.speak(utter);
@@ -182,7 +198,8 @@ document.getElementById("translate-btn").addEventListener("click", () => {
 
 function speakItalianOnly(text) {
   speechSynthesis.cancel();
-  const utter = new SpeechSynthesisUtterance(text);
+  const clean = cleanForSpeech(text);
+  const utter = new SpeechSynthesisUtterance(clean);
   utter.lang = "it-IT";
   utter.rate = 0.95;
   speechSynthesis.speak(utter);
