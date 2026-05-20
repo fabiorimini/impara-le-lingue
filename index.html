@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <title>Conversazione A1 Francese</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="chat-container">
+    <!-- Area chat -->
+    <div id="chat-log">
+      <p><em>La conversazione inizierà qui...</em></p>
+    </div>
+
+    <!-- Campo input -->
+    <input id="user-input" type="text" placeholder="Scrivi qui...">
+
+    <!-- Pulsanti -->
+    <div id="controls">
+      <button id="send-btn" class="btn btn-send">📩 Invia</button>
+      <button id="voice-btn" class="btn btn-voice">🎤 Parla (FR)</button>
+      <button id="listen-btn" class="btn btn-listen">🔊 Ascolta (FR)</button>
+      <button id="clarify-btn" class="btn btn-clarify">❓ Chiedi (IT)</button>
+      <button id="translate-btn" class="btn btn-clarify">🇮🇹 Traduci (IT)</button>
+    </div>
+
+    <!-- Punteggio qualità -->
+    <div id="score-box">
+      Qualità: <span id="score">-</span>
+    </div>
+
+    <!-- Info modello -->
+    <div id="model-info-box"></div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
