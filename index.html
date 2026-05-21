@@ -3,37 +3,45 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Conversazione A1 Francese</title>
+  <title>Impara le Lingue</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div id="chat-container">
-    <!-- Area chat -->
-    <div id="chat-log">
-      <p><em>La conversazione inizierà qui...</em></p>
-    </div>
+  <header>
+    <h1>🌍 Impara le Lingue</h1>
+  </header>
 
-    <!-- Campo input -->
-    <input id="user-input" type="text" placeholder="Scrivi qui...">
+  <main>
+    <section class="language-block">
+      <h2>🇫🇷 Francese</h2>
+      <div class="menu">
+        <a class="btn" href="/fr-a1/">A1</a>
+        <a class="btn" href="/fr-a2/">A2</a>
+        <a class="btn" href="/fr-a3/">A3</a>
+      </div>
+    </section>
 
-    <!-- Pulsanti -->
-    <div id="controls">
-      <button id="send-btn" class="btn btn-send">📩 Invia</button>
-      <button id="voice-btn" class="btn btn-voice">🎤 Parla (FR)</button>
-      <button id="listen-btn" class="btn btn-listen">🔊 Ascolta (FR)</button>
-      <button id="clarify-btn" class="btn btn-clarify">❓ Chiedi (IT)</button>
-      <button id="translate-btn" class="btn btn-clarify">🇮🇹 Traduci (IT)</button>
-    </div>
+    <section class="language-block">
+      <h2>🇬🇧 Inglese</h2>
+      <div class="menu">
+        <a class="btn" href="/en-a1/">A1</a>
+        <a class="btn" href="/en-a2/">A2</a>
+        <a class="btn" href="/en-a3/">A3</a>
+      </div>
+    </section>
 
-    <!-- Punteggio qualità -->
-    <div id="score-box">
-      Qualità: <span id="score">-</span>
-    </div>
+    <section class="language-block">
+      <h2>🇪🇸 Spagnolo</h2>
+      <div class="menu">
+        <a class="btn" href="/es-a1/">A1</a>
+        <a class="btn" href="/es-a2/">A2</a>
+        <a class="btn" href="/es-a3/">A3</a>
+      </div>
+    </section>
+  </main>
 
-    <!-- Info modello -->
-    <div id="model-info-box"></div>
-  </div>
-
-  <script src="script.js"></script>
+  <footer>
+    <p>Progetto Impara le Lingue — Menu principale</p>
+  </footer>
 </body>
 </html>
