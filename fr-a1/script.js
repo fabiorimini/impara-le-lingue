@@ -1,18 +1,20 @@
 // =========================
-// CONFIGURAZIONE
+// CONFIGURAZIONE BASE
 // =========================
-const TEACHER_LANG = "fr";   // lingua: francese
-const LEVEL = "A1";          // livello: A1
-const VOICE_RATE = { A1:0.65, A2:0.8, A3:1.0 }[LEVEL];
+const TEACHER_LANG = "fr";   // fr, en, es
+const LEVEL = "A1";          // A1, A2, A3
 
+const VOICE_RATE = { A1: 0.65, A2: 0.80, A3: 1.00 }[LEVEL];
 const DEFAULT_MODEL = "baidu/cobuddy:free";
 const API_ENDPOINT = "https://fabio-ai-chat.vercel.app/api/chat-a1";
 
-// Prompt differenziati per lingua e livello
+// =========================
+// PROMPT DINAMICI
+// =========================
 const PROMPTS = {
   fr: {
-    A1: "Tu es un professeur de français niveau A1. Parle avec phrases très courtes, simples et naturelles. Corrige uniquement les erreurs claires. Pose toujours une petite question simple.",
-    A2: "Tu es un professeur de français niveau A2. Utilise vocabulaire simple mais plus varié. Corrige erreurs claires. Pose une question pour continuer.",
+    A1: "Tu es un professeur de français niveau A1. Parle avec phrases très courtes, simples et naturelles. Corrige seulement les erreurs claires. Pose toujours une petite question simple.",
+    A2: "Tu es un professeur de français niveau A2. Utilise vocabulaire simple mais varié. Corrige erreurs claires. Pose une question pour continuer.",
     A3: "Tu es un professeur de français niveau A3. Parle de manière naturelle mais claire. Corrige erreurs. Pose une question adaptée."
   },
   en: {
@@ -30,7 +32,7 @@ const PROMPTS = {
 const basePrompt = PROMPTS[TEACHER_LANG][LEVEL];
 
 // =========================
-// PULIZIA TESTO PER VOCE
+// PULIZIA TESTO PER LA VOCE
 // =========================
 function cleanForSpeech(text) {
   return text
@@ -57,6 +59,15 @@ function speakText(text) {
   const utter = new SpeechSynthesisUtterance(clean);
   utter.lang = getVoiceLang();
   utter.rate = VOICE_RATE;
+  speechSynthesis.speak(utter);
+}
+
+function speakItalianOnly(text) {
+  speechSynthesis.cancel();
+  const clean = cleanForSpeech(text);
+  const utter = new SpeechSynthesisUtterance(clean);
+  utter.lang = "it-IT";
+  utter.rate = 0.95;
   speechSynthesis.speak(utter);
 }
 
@@ -92,24 +103,37 @@ function sendMessage() {
   evaluateQuality(text);
 
   history.push("Étudiant: " + text);
-  const model = localStorage.getItem("selectedModel") || DEFAULT_MODEL;
-  const shortHistory = history.slice(-6).join("\n");
+
+  // 🔥 Limitiamo la cronologia per evitare blocchi
+  const shortHistory = history.slice(-2).join("\n");
+
   const fullPrompt = basePrompt + "\n\n" + shortHistory;
+  const model = localStorage.getItem("selectedModel") || DEFAULT_MODEL;
 
   fetch(API_ENDPOINT, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ prompt: fullPrompt, model, max_tokens: 120, temperature: 0.3 })
+    body: JSON.stringify({
+      prompt: fullPrompt,
+      model,
+      max_tokens: 120,
+      temperature: 0.3
+    })
   })
-  .then(r => r.json())
-  .then(data => {
-    if (data.reply) {
-      addMessage("AI", data.reply);
-      speakText(data.reply);
-      history.push("Professeur: " + data.reply);
+  .then(async r => {
+    if (!r.ok) {
+      addMessage("AI", "Errore server: " + r.status);
+      return null;
     }
+    return r.json();
   })
-  .catch(err => addMessage("AI", "Erreur réseau: " + err))
+  .then(data => {
+    if (!data || !data.reply) return;
+    addMessage("AI", data.reply);
+    speakText(data.reply);
+    history.push("Professeur: " + data.reply);
+  })
+  .catch(err => addMessage("AI", "Errore rete: " + err))
   .finally(() => isLoading = false);
 }
 
@@ -126,40 +150,125 @@ const SpeechRecognition = getSpeechRecognition();
 document.getElementById("voice-btn").addEventListener("click", () => {
   speechSynthesis.cancel();
   if (!SpeechRecognition) {
-    addMessage("AI", "Il riconoscimento vocale non è supportato su questo browser. Usa Chrome.");
+    addMessage("AI", "Il riconoscimento vocale non è supportato su questo browser.");
     return;
   }
+
   const recognition = new SpeechRecognition();
   recognition.lang = getVoiceLang();
   recognition.continuous = false;
   recognition.interimResults = false;
-  recognition.maxAlternatives = 1;
 
   recognition.onresult = e => {
     const text = e.results[0][0].transcript.trim();
-    if (!text) return;
-    evaluateQuality(text);
     document.getElementById("user-input").value = text;
     sendMessage();
   };
 
-  recognition.onerror = e => {
-    addMessage("AI", "Errore riconoscimento vocale: " + e.error);
+  recognition.onerror = e => addMessage("AI", "Errore riconoscimento vocale: " + e.error);
+  recognition.start();
+});
+
+// =========================
+// ASCOLTA ULTIMA RISPOSTA AI
+// =========================
+document.getElementById("listen-btn").addEventListener("click", () => {
+  speechSynthesis.cancel();
+
+  const messages = [...document.querySelectorAll("#chat-log p")].reverse();
+  const lastAI = messages.find(p =>
+    p.innerText.startsWith("AI:") ||
+    p.innerText.startsWith("Professeur:")
+  );
+
+  if (!lastAI) return;
+
+  let text = lastAI.innerText.replace("AI:", "").replace("Professeur:", "").trim();
+  speakText(text);
+});
+
+// =========================
+// CHIEDI (ITALIANO → LINGUA TARGET)
+// =========================
+document.getElementById("clarify-btn").addEventListener("click", () => {
+  speechSynthesis.cancel();
+
+  if (!SpeechRecognition) {
+    addMessage("AI", "Il riconoscimento vocale non è supportato.");
+    return;
+  }
+
+  const recognition = new SpeechRecognition();
+  recognition.lang = "it-IT";
+
+  recognition.onresult = e => {
+    const text = e.results[0][0].transcript.trim();
+    addMessage("Tu", text);
+
+    const langName = { fr: "français", en: "anglais", es: "espagnol" }[TEACHER_LANG];
+
+    const clarifyPrompt =
+      basePrompt +
+      "\nL’étudiant pose une question en italien. Réponds uniquement en " +
+      langName + " niveau " + LEVEL + ".\n\nQuestion: " + text;
+
+    fetch(API_ENDPOINT, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ prompt: clarifyPrompt, model: DEFAULT_MODEL })
+    })
+    .then(r => r.json())
+    .then(data => {
+      addMessage("AI", data.reply);
+      speakText(data.reply);
+    });
   };
 
   recognition.start();
 });
 
 // =========================
+// TRADUCI (AI → ITALIANO)
+// =========================
+document.getElementById("translate-btn").addEventListener("click", () => {
+  const messages = [...document.querySelectorAll("#chat-log p")].reverse();
+  const lastAI = messages.find(p =>
+    p.innerText.startsWith("AI:") ||
+    p.innerText.startsWith("Professeur:")
+  );
+
+  if (!lastAI) return;
+
+  let text = lastAI.innerText.replace("AI:", "").replace("Professeur:", "").trim();
+
+  const translatePrompt =
+    "Traduisez ce texte vers l’italien. Donne uniquement la traduction italienne.\n\n" + text;
+
+  fetch(API_ENDPOINT, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ prompt: translatePrompt, model: DEFAULT_MODEL })
+  })
+  .then(r => r.json())
+  .then(data => speakItalianOnly(data.reply));
+});
+
+// =========================
 // VALUTAZIONE QUALITÀ
 // =========================
 async function evaluateQuality(userText) {
-  const evalPrompt = "Évalue cette phrase de l’étudiant de 0 à 10, donne seulement le nombre:\n\n" + userText;
+  const evalPrompt =
+    "Évalue cette phrase de l’étudiant de 0 à 10, donne seulement le nombre:\n\n" + userText;
 
   const response = await fetch(API_ENDPOINT, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ prompt: evalPrompt, model: DEFAULT_MODEL, max_tokens: 10, temperature: 0.1 })
+    body: JSON.stringify({
+      prompt: evalPrompt,
+      model: DEFAULT_MODEL,
+      max_tokens: 10,
+      temperature: 0.1
+    })
   });
 
   const data = await response.json();
