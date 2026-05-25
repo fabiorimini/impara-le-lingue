@@ -69,13 +69,14 @@
           option.value = model.id;
           option.textContent = model.name || model.id;
           select.appendChild(option);
-        });
-      } catch (err) {
-        console.error("Errore nel caricamento modelli:", err);
-        const select = document.getElementById("modelSelect");
-        select.innerHTML = "<option>Errore caricamento</option>";
+       });
+       } catch (err) {
+         console.error("Errore nel caricamento modelli:", err);
+         const select = document.getElementById("modelSelect");
+         select.innerHTML = "<option>Errore caricamento</option>";
       }
     }
+
 
     function getSelectedModel() {
       const select = document.getElementById("modelSelect");
