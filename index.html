@@ -2,56 +2,55 @@
 <html lang="it">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Impara le Lingue</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      text-align: center;
-      margin: 40px;
-    }
-    h1 {
-      margin-bottom: 20px;
-    }
-    .buttons {
-      margin: 20px 0;
-    }
-    button {
-      margin: 5px;
-      padding: 10px 20px;
-      font-size: 16px;
-      cursor: pointer;
-    }
-    label {
-      font-weight: bold;
-      margin-right: 10px;
-    }
-    select {
-      padding: 5px;
-      font-size: 16px;
-    }
-  </style>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <h1>Impara le Lingue</h1>
+  <header>
+    <h1>🌍 Impara le Lingue</h1>
+  </header>
 
-  <!-- 🔵 Menù modelli -->
-  <div>
-    <h2>Seleziona il modello AI</h2>
-    <label for="modelSelect">Modello:</label>
-    <select id="modelSelect"></select>
-  </div>
+  <main>
+    <!-- 🔵 Menù modelli -->
+    <section class="model-block">
+      <h2>⚙️ Seleziona il modello AI</h2>
+      <label for="modelSelect">Modello:</label>
+      <select id="modelSelect"></select>
+    </section>
 
-  <!-- 🔵 Bottoni lingue e livelli -->
-  <div class="buttons">
-    <h2>Scegli la lingua e il livello</h2>
-    <button onclick="goToPage('fr-a1')">Francese A1</button>
-    <button onclick="goToPage('fr-a2')">Francese A2</button>
-    <button onclick="goToPage('en-a1')">Inglese A1</button>
-    <button onclick="goToPage('en-a2')">Inglese A2</button>
-    <button onclick="goToPage('es-a1')">Spagnolo A1</button>
-    <button onclick="goToPage('es-a2')">Spagnolo A2</button>
-    <!-- aggiungi altri livelli/pagine se vuoi -->
-  </div>
+    <!-- 🔵 Lingue e livelli -->
+    <section class="language-block">
+      <h2>🇫🇷 Francese</h2>
+      <div class="menu">
+        <a class="btn" href="/fr-a1/">A1</a>
+        <a class="btn" href="/fr-a2/">A2</a>
+        <a class="btn" href="/fr-a3/">A3</a>
+      </div>
+    </section>
+
+    <section class="language-block">
+      <h2>🇬🇧 Inglese</h2>
+      <div class="menu">
+        <a class="btn" href="/en-a1/">A1</a>
+        <a class="btn" href="/en-a2/">A2</a>
+        <a class="btn" href="/en-a3/">A3</a>
+      </div>
+    </section>
+
+    <section class="language-block">
+      <h2>🇪🇸 Spagnolo</h2>
+      <div class="menu">
+        <a class="btn" href="/es-a1/">A1</a>
+        <a class="btn" href="/es-a2/">A2</a>
+        <a class="btn" href="/es-a3/">A3</a>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p>Progetto Impara le Lingue — Menu principale</p>
+  </footer>
 
   <script>
     // 🔧 Carica dinamicamente i modelli da OpenRouter
@@ -83,15 +82,20 @@
       return select ? select.value : "openrouter/free";
     }
 
-    // 🔧 Navigazione alle pagine lingue/ livelli
-    function goToPage(page) {
-      const model = getSelectedModel();
-      // Passa il modello scelto come query string
-      window.location.href = `${page}.html?model=${encodeURIComponent(model)}`;
-    }
+    // 🔧 Intercetta i click sui link delle lingue e aggiunge il modello scelto
+    document.addEventListener("DOMContentLoaded", () => {
+      loadModels();
 
-    // Carica i modelli quando la pagina è pronta
-    document.addEventListener("DOMContentLoaded", loadModels);
+      document.querySelectorAll(".menu a").forEach(link => {
+        link.addEventListener("click", e => {
+          e.preventDefault();
+          const model = getSelectedModel();
+          const target = e.currentTarget.getAttribute("href");
+          window.location.href = `${target}?model=${encodeURIComponent(model)}`;
+        });
+      });
+    });
   </script>
 </body>
 </html>
+
