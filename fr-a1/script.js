@@ -106,12 +106,11 @@ function sendMessage() {
 
   addMessage("Tu", text);
   input.value = "";
-  evaluateQuality(text);
 
   history.push("Étudiant: " + text);
 
   // 🔥 Limitiamo la cronologia per evitare blocchi
-  const shortHistory = history.slice(-2).join("\n");
+  const shortHistory = history.slice(-3).join("\n");
 
   const fullPrompt = basePrompt + "\n\n" + shortHistory;
 
@@ -231,7 +230,6 @@ document.getElementById("clarify-btn").addEventListener("click", () => {
 
   recognition.start();
 });
-
 // =========================
 // TRADUCI (AI → ITALIANO)
 // =========================
