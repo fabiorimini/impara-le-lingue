@@ -55,27 +55,20 @@
   </footer>
 
   <script>
-    // 🔧 Carica dinamicamente i modelli da OpenRouter
+    // 🔧 Carica dinamicamente i modelli dal backend (proxy su Vercel)
     async function loadModels() {
       try {
-        const response = await fetch("https://openrouter.ai/api/v1/models", {
-          headers: {
-            "Authorization": `Bearer ${YOUR_OPENROUTER_API_KEY}`, // ⚠️ Inserisci la tua API key
-            "Content-Type": "application/json"
-          }
-        });
+        const response = await fetch("https://fabio-ai-chat.vercel.app/api/models");
         const data = await response.json();
 
         const select = document.getElementById("modelSelect");
         select.innerHTML = "";
 
         data.forEach(model => {
-          if (model.id.includes(":free")) {
-            const option = document.createElement("option");
-            option.value = model.id;
-            option.textContent = model.name || model.id;
-            select.appendChild(option);
-          }
+          const option = document.createElement("option");
+          option.value = model.id;
+          option.textContent = model.name || model.id;
+          select.appendChild(option);
         });
       } catch (err) {
         console.error("Errore nel caricamento modelli:", err);
@@ -105,4 +98,3 @@
   </script>
 </body>
 </html>
-
