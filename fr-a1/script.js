@@ -5,7 +5,7 @@ const TEACHER_LANG = "fr";   // fr, en, es
 const LEVEL = "A1";          // A1, A2, A3
 
 const VOICE_RATE = { A1: 0.65, A2: 0.80, A3: 1.00 }[LEVEL];
-const DEFAULT_MODEL = "meta-llama/llama-3.3-70b-instruct:free";
+const DEFAULT_MODEL = "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free";
 const API_ENDPOINT = "https://fabio-ai-chat.vercel.app/api/chat-a1";
 
 // =========================
