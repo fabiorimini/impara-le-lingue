@@ -10,7 +10,7 @@ const API_ENDPOINT = "https://fabio-ai-chat.vercel.app/api/chat-a1";
 // ✅ Legge il modello scelto dal menù della pagina iniziale
 function getSelectedModel() {
   const params = new URLSearchParams(window.location.search);
-  return params.get("model") || "openrouter/free";
+  return params.get("model") || "gpt-4o-mini";
 }
 
 
