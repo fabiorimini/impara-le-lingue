@@ -16,7 +16,9 @@
     <section class="model-block">
       <h2>⚙️ Seleziona il modello AI</h2>
       <label for="modelSelect">Modello:</label>
-      <select id="modelSelect"></select>
+      <select id="modelSelect">
+        <option>Caricamento...</option>
+      </select>
     </section>
 
     <!-- 🔵 Lingue e livelli -->
@@ -56,14 +58,18 @@
     // 🔧 Carica dinamicamente i modelli da OpenRouter
     async function loadModels() {
       try {
-        const response = await fetch("https://openrouter.ai/api/v1/models");
+        const response = await fetch("https://openrouter.ai/api/v1/models", {
+          headers: {
+            "Authorization": `Bearer ${YOUR_OPENROUTER_API_KEY}`, // ⚠️ Inserisci la tua API key
+            "Content-Type": "application/json"
+          }
+        });
         const data = await response.json();
 
         const select = document.getElementById("modelSelect");
         select.innerHTML = "";
 
         data.forEach(model => {
-          // Mostra solo quelli free
           if (model.id.includes(":free")) {
             const option = document.createElement("option");
             option.value = model.id;
@@ -73,10 +79,11 @@
         });
       } catch (err) {
         console.error("Errore nel caricamento modelli:", err);
+        const select = document.getElementById("modelSelect");
+        select.innerHTML = "<option>Errore caricamento</option>";
       }
     }
 
-    // 🔧 Funzione per ottenere il modello selezionato
     function getSelectedModel() {
       const select = document.getElementById("modelSelect");
       return select ? select.value : "openrouter/free";
