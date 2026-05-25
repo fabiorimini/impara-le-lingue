@@ -259,32 +259,6 @@ document.getElementById("translate-btn").addEventListener("click", () => {
 });
 
 // =========================
-// VALUTAZIONE QUALITÀ
-// =========================
-async function evaluateQuality(userText) {
-  const evalPrompt =
-    "Évalue cette phrase de l’étudiant de 0 à 10, donne seulement le nombre:\n\n" + userText;
-
-  const response = await fetch(API_ENDPOINT, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      prompt: evalPrompt,
-      model: getSelectedModel(),
-      max_tokens: 10,
-      temperature: 0.1
-    })
-  });
-
-  const data = await response.json();
-  const score = parseInt(data.reply);
-
-  if (!isNaN(score)) {
-    document.getElementById("score").textContent = score;
-  }
-}
-
-// =========================
 // INFO MODELLO
 // =========================
 document.addEventListener("DOMContentLoaded", () => {
