@@ -114,14 +114,13 @@ function sendMessage() {
   const shortHistory = history.slice(-2).join("\n");
 
   const fullPrompt = basePrompt + "\n\n" + shortHistory;
-  const model = localStorage.getItem("selectedModel") || DEFAULT_MODEL;
 
   fetch(API_ENDPOINT, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       prompt: fullPrompt,
-      model,
+      model: getSelectedModel(),
       max_tokens: 120,
       temperature: 0.3
     })
@@ -221,7 +220,7 @@ document.getElementById("clarify-btn").addEventListener("click", () => {
     fetch(API_ENDPOINT, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ prompt: clarifyPrompt, model: DEFAULT_MODEL })
+      body: JSON.stringify({ prompt: clarifyPrompt, model: getSelectedModel() })
     })
     .then(r => r.json())
     .then(data => {
@@ -253,7 +252,7 @@ document.getElementById("translate-btn").addEventListener("click", () => {
   fetch(API_ENDPOINT, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ prompt: translatePrompt, model: DEFAULT_MODEL })
+    body: JSON.stringify({ prompt: translatePrompt, model: getSelectedModel() })
   })
   .then(r => r.json())
   .then(data => speakItalianOnly(data.reply));
@@ -271,7 +270,7 @@ async function evaluateQuality(userText) {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       prompt: evalPrompt,
-      model: DEFAULT_MODEL,
+      model: getSelectedModel(),
       max_tokens: 10,
       temperature: 0.1
     })
@@ -289,7 +288,6 @@ async function evaluateQuality(userText) {
 // INFO MODELLO
 // =========================
 document.addEventListener("DOMContentLoaded", () => {
-  const selectedModel = localStorage.getItem("selectedModel") || DEFAULT_MODEL;
   const box = document.getElementById("model-info-box");
-  if (box) box.textContent = "Modello AI in uso: " + selectedModel;
+  if (box) box.textContent = "Modello AI in uso: " + getSelectedModel();
 });
