@@ -5,8 +5,14 @@ const TEACHER_LANG = "fr";   // fr, en, es
 const LEVEL = "A1";          // A1, A2, A3
 
 const VOICE_RATE = { A1: 0.65, A2: 0.80, A3: 1.00 }[LEVEL];
-const DEFAULT_MODEL = "deepseek/deepseek-v4-flash:free";
 const API_ENDPOINT = "https://fabio-ai-chat.vercel.app/api/chat-a1";
+
+// ✅ Legge il modello scelto dal menù della pagina iniziale
+function getSelectedModel() {
+  const params = new URLSearchParams(window.location.search);
+  return params.get("model") || "openrouter/free";
+}
+
 
 // =========================
 // PROMPT DINAMICI
