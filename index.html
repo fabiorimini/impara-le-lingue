@@ -68,7 +68,7 @@
       const select = document.getElementById("modelSelect");
       select.innerHTML = "";
 
-      OPENAI_MODELS.forEach(model => {
+     OPENAI_MODELS.forEach(model => {
         const option = document.createElement("option");
         option.value = model.id;
         option.textContent = model.name;
@@ -96,6 +96,7 @@
       });
     });
   </script>
+
 
 </body>
 </html>
