@@ -109,8 +109,7 @@ function sendMessage() {
 
   history.push("Étudiant: " + text);
 
-  // 🔥 Limitiamo la cronologia per evitare blocchi
-  const shortHistory = history.slice(-3).join("\n");
+  const shortHistory = history.slice(-6).join("\n");
 
   const fullPrompt = basePrompt + "\n\n" + shortHistory;
 
@@ -120,17 +119,24 @@ function sendMessage() {
     body: JSON.stringify({
       prompt: fullPrompt,
       model: getSelectedModel(),
-      max_tokens: 120,
+      max_tokens: 200,
       temperature: 0.3
     })
   })
   .then(async r => {
     if (!r.ok) {
-      addMessage("AI", "Errore server: " + r.status);
+      if (r.status === 429) {
+        addMessage("AI", "⚠️ Limite richieste superato, riprova tra poco.");
+      } else if (r.status === 500) {
+        addMessage("AI", "⚠️ Errore interno del server, riprova.");
+      } else {
+        addMessage("AI", "Errore server: " + r.status);
+      }
       return null;
     }
     return r.json();
   })
+
   .then(data => {
     if (!data || !data.reply) return;
     addMessage("AI", data.reply);
