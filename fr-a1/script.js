@@ -141,7 +141,7 @@ function sendMessage() {
     if (!data || !data.reply) return;
     addMessage("AI", data.reply);
     speakText(data.reply);
-    history.push("Professeur: " + data.reply);
+    history.push(data.reply);
   })
   .catch(err => addMessage("AI", "Errore rete: " + err))
   .finally(() => isLoading = false);
