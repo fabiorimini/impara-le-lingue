@@ -180,6 +180,58 @@ document.getElementById("voice-btn").addEventListener("click", () => {
 });
 
 // =========================
+// BOTTONE START/RESET
+// =========================
+function startConversation() {
+  // Pulisce chat
+  const log = document.getElementById("chat-log");
+  log.innerHTML = "";
+
+  // Reset cronologia
+  history = [];
+
+  // Frase iniziale nella lingua corretta
+  const START_SENTENCE = {
+    fr: "Commence la conversation avec une phrase très simple adaptée au niveau ",
+    en: "Start the conversation with a very simple sentence appropriate for level ",
+    es: "Empieza la conversación con una frase muy simple adecuada para el nivel "
+  }[TEACHER_LANG];
+
+  // Frase che vieta i prefissi nella lingua corretta
+  const NO_PREFIX = {
+    fr: "Ne commence jamais par un préfixe comme 'Professeur:' ou autre. Réponds uniquement avec le texte.",
+    en: "Never start your sentences with a prefix like 'Teacher:' or anything similar. Respond only with the text.",
+    es: "No empieces tus frases con un prefijo como 'Profesor:' ni nada parecido. Responde solo con el texto."
+  }[TEACHER_LANG];
+
+  // Prompt iniziale dinamico
+  const startPrompt =
+    basePrompt +
+    "\n" +
+    START_SENTENCE + LEVEL + ". " +
+    NO_PREFIX;
+    
+  fetch(API_ENDPOINT, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      prompt: startPrompt,
+      model: getSelectedModel(),
+      max_tokens: 120,
+      temperature: 0.3
+    })
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (!data || !data.reply) return;
+    addMessage("AI", data.reply);
+    speakText(data.reply);
+    history.push(data.reply);
+  });
+}
+document.getElementById("start-reset-btn").addEventListener("click", startConversation);
+
+// =========================
 // ASCOLTA ULTIMA RISPOSTA AI
 // =========================
 document.getElementById("listen-btn").addEventListener("click", () => {

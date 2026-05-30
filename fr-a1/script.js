@@ -19,19 +19,20 @@ function getSelectedModel() {
 // =========================
 const PROMPTS = {
   fr: {
-    A1: "Tu es un professeur de français niveau A1. Parle avec phrases très courtes, simples et naturelles. Corrige seulement les erreurs claires. Pose toujours une petite question simple.",
-    A2: "Tu es un professeur de français niveau A2. Utilise vocabulaire simple mais varié. Corrige erreurs claires. Pose une question pour continuer.",
-    A3: "Tu es un professeur de français niveau A3. Parle de manière naturelle mais claire. Corrige erreurs. Pose une question adaptée."
-  },
+    A1: "Tu es un professeur de français niveau A1. Parle avec phrases très courtes, simples et naturelles. Corrige seulement les erreurs claires. Pose toujours une petite question simple. Ne commence jamais tes phrases par 'Professeur:' ou un autre préfixe. Réponds uniquement avec le texte.",
+    A2: "Tu es un professeur de français niveau A2. Utilise vocabulaire simple mais varié. Corrige erreurs claires. Pose une question pour continuer. Ne commence jamais tes phrases par 'Professeur:' ou un autre préfixe.",
+    A3: "Tu es un professeur de français niveau A3. Parle de manière naturelle mais claire. Corrige erreurs. Pose une question adaptée. Ne commence jamais tes phrases par 'Professeur:' ou un autre préfixe."
+  }
+
   en: {
-    A1: "You are an English teacher, level A1. Speak with very short and simple sentences. Correct only clear mistakes. Always ask a simple follow-up question.",
-    A2: "You are an English teacher, level A2. Use simple but more varied vocabulary. Correct clear mistakes. Ask a question to continue.",
-    A3: "You are an English teacher, level A3. Speak naturally but clearly. Correct mistakes. Ask a suitable question."
+    A1: "You are an English teacher, level A1. Speak using very short and simple sentences. Correct only clear mistakes. Always ask a simple follow‑up question. Never start your sentences with 'Teacher:' or any prefix. Respond only with the text.",
+    A2: "You are an English teacher, level A2. Use simple but more varied vocabulary. Correct clear mistakes. Ask a question to continue. Never start your sentences with 'Teacher:' or any prefix. Respond only with the text.",
+    A3: "You are an English teacher, level A3. Speak naturally but clearly. Correct mistakes. Ask a suitable question. Never start your sentences with 'Teacher:' or any prefix. Respond only with the text."
   },
   es: {
-    A1: "Eres un profesor de español nivel A1. Habla con frases muy cortas y simples. Corrige solo errores claros. Haz siempre una pregunta sencilla.",
-    A2: "Eres un profesor de español nivel A2. Usa vocabulario simple pero más variado. Corrige errores claros. Haz una pregunta para continuar.",
-    A3: "Eres un profesor de español nivel A3. Habla de forma natural pero clara. Corrige errores. Haz una pregunta adecuada."
+    A1: "Eres un profesor de español nivel A1. Habla con frases muy cortas y simples. Corrige solo errores claros. Haz siempre una pregunta sencilla. No empieces tus frases con 'Profesor:' ni ningún prefijo. Responde solo con el texto.",
+    A2: "Eres un profesor de español nivel A2. Usa vocabulario simple pero más variado. Corrige errores claros. Haz una pregunta para continuar. No empieces tus frases con 'Profesor:' ni ningún prefijo. Responde solo con el texto.",
+    A3: "Eres un profesor de español nivel A3. Habla de forma natural pero clara. Corrige errores. Haz una pregunta adecuada. No empieces tus frases con 'Profesor:' ni ningún prefijo. Responde solo con el texto."
   }
 };
 
@@ -178,6 +179,58 @@ document.getElementById("voice-btn").addEventListener("click", () => {
   recognition.onerror = e => addMessage("AI", "Errore riconoscimento vocale: " + e.error);
   recognition.start();
 });
+
+// =========================
+// BOTTONE START/RESET
+// =========================
+function startConversation() {
+  // Pulisce chat
+  const log = document.getElementById("chat-log");
+  log.innerHTML = "";
+
+  // Reset cronologia
+  history = [];
+
+  // Frase iniziale nella lingua corretta
+  const START_SENTENCE = {
+    fr: "Commence la conversation avec une phrase très simple adaptée au niveau ",
+    en: "Start the conversation with a very simple sentence appropriate for level ",
+    es: "Empieza la conversación con una frase muy simple adecuada para el nivel "
+  }[TEACHER_LANG];
+
+  // Frase che vieta i prefissi nella lingua corretta
+  const NO_PREFIX = {
+    fr: "Ne commence jamais par un préfixe comme 'Professeur:' ou autre. Réponds uniquement avec le texte.",
+    en: "Never start your sentences with a prefix like 'Teacher:' or anything similar. Respond only with the text.",
+    es: "No empieces tus frases con un prefijo como 'Profesor:' ni nada parecido. Responde solo con el texto."
+  }[TEACHER_LANG];
+
+  // Prompt iniziale dinamico
+  const startPrompt =
+    basePrompt +
+    "\n" +
+    START_SENTENCE + LEVEL + ". " +
+    NO_PREFIX;
+    
+  fetch(API_ENDPOINT, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      prompt: startPrompt,
+      model: getSelectedModel(),
+      max_tokens: 120,
+      temperature: 0.3
+    })
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (!data || !data.reply) return;
+    addMessage("AI", data.reply);
+    speakText(data.reply);
+    history.push(data.reply);
+  });
+}
+document.getElementById("start-reset-btn").addEventListener("click", startConversation);
 
 // =========================
 // ASCOLTA ULTIMA RISPOSTA AI
