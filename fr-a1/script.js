@@ -193,9 +193,9 @@ function startConversation() {
 
   // Frase iniziale nella lingua corretta
   const START_SENTENCE = {
-    fr: "Commence la conversation avec une phrase très simple adaptée au niveau ",
-    en: "Start the conversation with a very simple sentence appropriate for level ",
-    es: "Empieza la conversación con una frase muy simple adecuada para el nivel "
+    fr: "Commence la conversation avec une phrase très simple et naturelle, différente à chaque fois, adaptée au niveau ",
+    en: "Start the conversation with a very simple and natural sentence, different each time, appropriate for level ",
+    es: "Empieza la conversación con una frase muy simple y natural, diferente cada vez, adecuada para el nivel "
   }[TEACHER_LANG];
 
   // Frase che vieta i prefissi nella lingua corretta
@@ -211,7 +211,7 @@ function startConversation() {
     "\n" +
     START_SENTENCE + LEVEL + ". " +
     NO_PREFIX;
-    
+
   fetch(API_ENDPOINT, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -219,7 +219,7 @@ function startConversation() {
       prompt: startPrompt,
       model: getSelectedModel(),
       max_tokens: 120,
-      temperature: 0.3
+      temperature: 0.7   // più alto = più varietà
     })
   })
   .then(r => r.json())
@@ -230,7 +230,9 @@ function startConversation() {
     history.push(data.reply);
   });
 }
+
 document.getElementById("start-reset-btn").addEventListener("click", startConversation);
+
 
 // =========================
 // ASCOLTA ULTIMA RISPOSTA AI
