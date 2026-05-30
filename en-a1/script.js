@@ -232,7 +232,6 @@ function startConversation() {
 
 document.getElementById("start-reset-btn").addEventListener("click", startConversation);
 
-
 // =========================
 // ASCOLTA ULTIMA RISPOSTA AI
 // =========================
