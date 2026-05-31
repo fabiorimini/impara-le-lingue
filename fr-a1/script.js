@@ -110,7 +110,7 @@ function sendMessage() {
 
   history.push("Étudiant: " + text);
 
-  const shortHistory = history.slice(-6).join("\n");
+  const shortHistory = history.slice(-15).join("\n");
 
   const fullPrompt = basePrompt + "\n\n" + shortHistory;
 
