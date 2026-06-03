@@ -12,15 +12,6 @@
   </header>
 
   <main>
-    <!-- 🔵 Menù modelli -->
-    <section class="model-block">
-      <h2>⚙️ Seleziona il modello AI</h2>
-      <label for="modelSelect">Modello:</label>
-      <select id="modelSelect">
-        <option>Caricamento...</option>
-      </select>
-    </section>
-
     <!-- 🔵 Lingue e livelli -->
     <section class="language-block">
       <h2>🇫🇷 Francese</h2>
@@ -55,48 +46,22 @@
   </footer>
 
   <script>
-    // 🔧 Lista modelli OpenAI disponibili
-    const OPENAI_MODELS = [
-      { id: "gpt-4o-mini", name: "GPT‑4o Mini (veloce, economico)" },
-      { id: "gpt-4o", name: "GPT‑4o (molto potente)" },
-      { id: "gpt-4.1", name: "GPT‑4.1 (avanzato)" },
-      { id: "gpt-4.1-mini", name: "GPT‑4.1 Mini (ottimo per chat)" }
-    ];
-
-    // 🔧 Carica i modelli nel menu
-    function loadModels() {
-      const select = document.getElementById("modelSelect");
-      select.innerHTML = "";
-
-     OPENAI_MODELS.forEach(model => {
-        const option = document.createElement("option");
-        option.value = model.id;
-        option.textContent = model.name;
-        select.appendChild(option);
-      });
-    }
-
-    // 🔧 Ritorna il modello selezionato
+    // 🔧 Ora non serve più selezionare il modello
+    // Ogni pagina userà sempre gpt-4o-mini
     function getSelectedModel() {
-      const select = document.getElementById("modelSelect");
-      return select ? select.value : "gpt-4o-mini";
+      return "gpt-4o-mini";
     }
 
-    // 🔧 Aggiunge il modello all’URL quando scegli lingua/livello
+    // 🔧 Navigazione diretta senza query ?model=
     document.addEventListener("DOMContentLoaded", () => {
-      loadModels();
-
       document.querySelectorAll(".menu a").forEach(link => {
         link.addEventListener("click", e => {
           e.preventDefault();
-          const model = getSelectedModel();
           const target = e.currentTarget.getAttribute("href");
-          window.location.href = `${target}?model=${encodeURIComponent(model)}`;
+          window.location.href = target; // niente più ?model=
         });
       });
     });
   </script>
-
-
 </body>
 </html>
