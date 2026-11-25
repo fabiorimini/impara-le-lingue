@@ -95,23 +95,3 @@ footer {
   background: #eee;
   margin-top: 30px;
 }
-
-.instructions {
-  max-width: 800px;
-  margin: 20px auto;
-  padding: 15px;
-  background-color: #eef6ff;
-  border: 1px solid #c8ddff;
-  border-radius: 10px;
-  text-align: left;
-}
-
-.instructions h3 {
-  margin-top: 0;
-  color: #0056b3;
-}
-
-.instructions p {
-  margin: 8px 0;
-  line-height: 1.5;
-}
