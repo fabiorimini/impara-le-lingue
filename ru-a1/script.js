@@ -44,6 +44,38 @@ const PROMPTS = {
 const basePrompt = PROMPTS[TEACHER_LANG][LEVEL];
 
 // =========================
+// TRASLITTERAZIONE RUSSO (CIRILLICO -> LATINO)
+// =========================
+function transliterateRussian(text) {
+  const map = {
+    а: "a", б: "b", в: "v", г: "g", д: "d", е: "e", ё: "yo",
+    ж: "zh", з: "z", и: "i", й: "y", к: "k", л: "l", м: "m",
+    н: "n", о: "o", п: "p", р: "r", с: "s", т: "t", у: "u",
+    ф: "f", х: "kh", ц: "ts", ч: "ch", ш: "sh", щ: "shch",
+    ъ: "", ы: "y", ь: "", э: "e", ю: "yu", я: "ya"
+  };
+
+  return text
+    .split("")
+    .map(char => {
+      const lower = char.toLowerCase();
+      if (!(lower in map)) return char;
+      const converted = map[lower];
+      if (!converted) return "";
+      return char === char.toUpperCase()
+        ? converted.charAt(0).toUpperCase() + converted.slice(1)
+        : converted;
+    })
+    .join("");
+}
+
+function formatDisplayReply(text) {
+  if (TEACHER_LANG !== "ru") return text;
+  const latin = transliterateRussian(text);
+  return `${text} <span class="translit-latin">(${latin})</span>`;
+}
+
+// =========================
 // PULIZIA TESTO PER LA VOCE
 // =========================
 function cleanForSpeech(text) {
@@ -144,7 +176,7 @@ function sendMessage() {
   })
   .then(data => {
     if (!data || !data.reply) return;
-    addMessage("AI", data.reply);
+    addMessage("AI", formatDisplayReply(data.reply));
     speakText(data.reply);
     history.push(data.reply);
   })
@@ -231,7 +263,7 @@ function startConversation() {
   .then(r => r.json())
   .then(data => {
     if (!data || !data.reply) return;
-    addMessage("AI", data.reply);
+    addMessage("AI", formatDisplayReply(data.reply));
     speakText(data.reply);
     history.push(data.reply);
   });
@@ -289,7 +321,8 @@ document.getElementById("clarify-btn").addEventListener("click", () => {
     })
     .then(r => r.json())
     .then(data => {
-      addMessage("AI", data.reply);
+      if (!data || !data.reply) return;
+      addMessage("AI", formatDisplayReply(data.reply));
       speakText(data.reply);
     });
   };
